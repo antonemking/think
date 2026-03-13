@@ -1,0 +1,10 @@
+services:
+  think:
+    build: .
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - THINK_DATA_DIR=/app/data
+    restart: always
