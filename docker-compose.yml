@@ -8,3 +8,16 @@ services:
     environment:
       - THINK_DATA_DIR=/app/data
     restart: always
+
+  syncthing:
+    image: syncthing/syncthing:latest
+    hostname: think-sync
+    ports:
+      - "8384:8384"   # Web UI
+      - "22000:22000/tcp" # Sync protocol
+      - "22000:22000/udp"
+      - "21027:21027/udp" # Discovery
+    volumes:
+      - ./data:/var/syncthing/ThinkCanvas
+      - ./.syncthing-config:/var/syncthing/config
+    restart: always

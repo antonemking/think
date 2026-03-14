@@ -15,6 +15,7 @@
 
 # data (uploads, db)
 /data/
+/.syncthing-config/
 
 # next.js
 /.next/

@@ -8,7 +8,7 @@ const SETTINGS_PATH = path.join(DATA_DIR, 'settings.json');
 
 interface Settings {
   whisperPath: string;
-  syncProvider: 'none' | 'dropbox' | 'gdrive' | 'custom';
+  syncProvider: 'none' | 'dropbox' | 'gdrive' | 'syncthing' | 'custom';
   syncPath: string;
   autoSync: boolean;
 }

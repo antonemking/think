@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { X, Mic, FolderOpen, RefreshCw, Check, Cloud, CloudOff, Upload, Download, HardDrive } from 'lucide-react';
+import { X, Mic, FolderOpen, RefreshCw, Check, Cloud, CloudOff, Upload, Download, HardDrive, RefreshCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Settings {
   whisperPath: string;
-  syncProvider: 'none' | 'dropbox' | 'gdrive' | 'custom';
+  syncProvider: 'none' | 'dropbox' | 'gdrive' | 'syncthing' | 'custom';
   syncPath: string;
   autoSync: boolean;
 }
@@ -27,12 +27,14 @@ interface SettingsPanelProps {
 
 const SYNC_PROVIDERS = [
   { value: 'none', label: 'None', icon: CloudOff },
+  { value: 'syncthing', label: 'Syncthing', icon: RefreshCcw },
   { value: 'dropbox', label: 'Dropbox', icon: Cloud },
   { value: 'gdrive', label: 'Google Drive', icon: Cloud },
-  { value: 'custom', label: 'Custom Path', icon: HardDrive },
+  { value: 'custom', label: 'Custom', icon: HardDrive },
 ] as const;
 
 const SYNC_PATHS: Record<string, string> = {
+  syncthing: '',
   dropbox: '~/Dropbox/ThinkCanvas',
   gdrive: '~/Google Drive/My Drive/ThinkCanvas',
   custom: '',
@@ -203,7 +205,7 @@ export function SettingsPanel({ onClose, onSyncWhisper }: SettingsPanelProps) {
               {/* Provider selection */}
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block">Sync provider</label>
-                <div className="grid grid-cols-4 gap-1.5">
+                <div className="grid grid-cols-5 gap-1.5">
                   {SYNC_PROVIDERS.map((p) => (
                     <button
                       key={p.value}
@@ -222,8 +224,44 @@ export function SettingsPanel({ onClose, onSyncWhisper }: SettingsPanelProps) {
                 </div>
               </div>
 
-              {/* Sync path */}
-              {settings.syncProvider !== 'none' && (
+              {/* Syncthing mode */}
+              {settings.syncProvider === 'syncthing' && (
+                <div className="space-y-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <RefreshCcw className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-800">Syncthing — Continuous Sync</span>
+                    </div>
+                    <p className="text-xs text-green-700 leading-relaxed">
+                      Syncthing syncs your <code className="bg-green-100 px-1 rounded">data/</code> folder automatically between devices.
+                      No manual push/pull needed.
+                    </p>
+                  </div>
+
+                  <div className="text-xs text-gray-500 space-y-1.5">
+                    <p className="font-medium text-gray-700">Setup:</p>
+                    <ol className="list-decimal pl-4 space-y-1">
+                      <li>Open Syncthing UI at <button onClick={() => window.open('http://localhost:8384', '_blank')} className="text-blue-600 underline">localhost:8384</button></li>
+                      <li>Add your other device (share device IDs)</li>
+                      <li>Share the <code className="bg-gray-100 px-1 rounded">ThinkCanvas</code> folder with that device</li>
+                      <li>On the remote device, accept the folder and point it to the Think Canvas <code className="bg-gray-100 px-1 rounded">data/</code> directory</li>
+                    </ol>
+                  </div>
+
+                  <div>
+                    <button
+                      onClick={() => window.open('http://localhost:8384', '_blank')}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      <RefreshCcw className="w-3.5 h-3.5" />
+                      Open Syncthing UI
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Sync path (for non-syncthing providers) */}
+              {settings.syncProvider !== 'none' && settings.syncProvider !== 'syncthing' && (
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Sync folder path</label>
                   <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
@@ -244,8 +282,8 @@ export function SettingsPanel({ onClose, onSyncWhisper }: SettingsPanelProps) {
                 </div>
               )}
 
-              {/* Sync actions */}
-              {settings.syncProvider !== 'none' && settings.syncPath && (
+              {/* Push/Pull actions (for non-syncthing providers) */}
+              {settings.syncProvider !== 'none' && settings.syncProvider !== 'syncthing' && settings.syncPath && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <button
